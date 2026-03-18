@@ -16,7 +16,7 @@ forecast_providers:
 
   weatherapi:
     enabled: true
-    api_key: ""  # set your WeatherAPI key here
+    api_key: "612326a968524cc088f220628261803"  # set your WeatherAPI key here
 
   openweathermap:
     enabled: true
