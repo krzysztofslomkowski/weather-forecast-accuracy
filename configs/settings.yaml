@@ -1,0 +1,31 @@
+city: Torrevieja
+country: Spain
+latitude: 37.9780
+longitude: -0.6822
+forecast_horizon_days: 3
+
+paths:
+  forecasts_raw: data/raw/forecasts
+  actuals_raw: data/raw/actuals
+  evaluation_processed: data/processed/evaluation
+  reports_figures: reports/figures
+
+forecast_providers:
+  open-meteo:
+    enabled: true
+
+  weatherapi:
+    enabled: true
+    api_key: ""  # set your WeatherAPI key here
+
+  openweathermap:
+    enabled: true
+    api_key: ""  # set your OpenWeatherMap key here
+
+  visualcrossing:
+    enabled: true
+    api_key: ""  # set your Visual Crossing key here
+
+  tomorrow:
+    enabled: true
+    api_key: ""  # set your Tomorrow.io key here
