@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -18,10 +18,19 @@ def load_settings(path: str = "configs/settings.yaml") -> dict:
         return yaml.safe_load(file)
 
 
-def fetch_actuals(latitude: float, longitude: float, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+def fetch_actuals(
+    latitude: float,
+    longitude: float,
+    start_date: date,
+    end_date: date,
+) -> pd.DataFrame:
     """Fetch daily actual weather observations from Meteostat."""
     location = Point(latitude, longitude)
-    daily = Daily(location, start_date, end_date)
+
+    start_dt = datetime.combine(start_date, datetime.min.time())
+    end_dt = datetime.combine(end_date, datetime.min.time())
+
+    daily = Daily(location, start_dt, end_dt)
     return daily.fetch().reset_index()
 
 
