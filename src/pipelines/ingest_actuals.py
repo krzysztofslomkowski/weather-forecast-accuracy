@@ -9,6 +9,8 @@ import pandas as pd
 import yaml
 from meteostat import Daily, Point
 
+from src.database.postgres import save_actuals_to_db
+
 HISTORY_DAYS = 30
 
 
@@ -73,6 +75,7 @@ def main() -> None:
     raw_actuals = fetch_actuals(latitude, longitude, start_date, end_date)
     actuals_df = normalize_actuals(raw_actuals)
     output_path = save_actuals(actuals_df, settings["paths"]["actuals_raw"])
+    save_actuals_to_db(actuals_df)
 
     print(f"Saved actuals to: {output_path}")
     print(actuals_df.tail())
