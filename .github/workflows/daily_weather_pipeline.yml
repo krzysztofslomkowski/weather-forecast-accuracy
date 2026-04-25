@@ -19,6 +19,8 @@ jobs:
       OPENWEATHERMAP_KEY: ${{ secrets.OPENWEATHERMAP_KEY }}
       VISUALCROSSING_KEY: ${{ secrets.VISUALCROSSING_KEY }}
       TOMORROW_KEY: ${{ secrets.TOMORROW_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
     steps:
       - name: Check out repository
