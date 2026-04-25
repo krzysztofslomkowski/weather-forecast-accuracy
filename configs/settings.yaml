@@ -16,16 +16,16 @@ forecast_providers:
 
   weatherapi:
     enabled: true
-    api_key: "612326a968524cc088f220628261803"  # set your WeatherAPI key here
+    api_key_env: WEATHERAPI_KEY
 
   openweathermap:
     enabled: true
-    api_key: ""  # set your OpenWeatherMap key here
+    api_key_env: OPENWEATHERMAP_KEY
 
   visualcrossing:
     enabled: true
-    api_key: ""  # set your Visual Crossing key here
+    api_key_env: VISUALCROSSING_KEY
 
   tomorrow:
     enabled: true
-    api_key: ""  # set your Tomorrow.io key here
+    api_key_env: TOMORROW_KEY
