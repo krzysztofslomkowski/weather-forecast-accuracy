@@ -1,0 +1,46 @@
+name: Daily Weather Forecast Pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 6 * * *"
+
+jobs:
+  run-weather-pipeline:
+    runs-on: ubuntu-latest
+
+    env:
+      WEATHERAPI_KEY: ${{ secrets.WEATHERAPI_KEY }}
+      OPENWEATHERMAP_KEY: ${{ secrets.OPENWEATHERMAP_KEY }}
+      VISUALCROSSING_KEY: ${{ secrets.VISUALCROSSING_KEY }}
+      TOMORROW_KEY: ${{ secrets.TOMORROW_KEY }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest forecasts
+        run: python -m src.pipelines.ingest_forecast
+
+      - name: Ingest actual observations
+        run: python -m src.pipelines.ingest_actuals
+
+      - name: Run evaluation
+        run: python -m src.pipelines.run_evaluation
+
+      - name: Upload generated data artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-pipeline-output
+          path: |
+            data/raw/forecasts/*.parquet
+            data/raw/actuals/*.parquet
+            data/processed/evaluation/*.parquet
