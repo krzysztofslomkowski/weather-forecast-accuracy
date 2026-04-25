@@ -2,6 +2,9 @@ name: Daily Weather Forecast Pipeline
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
   schedule:
     # GitHub cron uses UTC.
     # 19:15 UTC = 20:15 in Poland/Spain during winter time, 21:15 during summer time.
