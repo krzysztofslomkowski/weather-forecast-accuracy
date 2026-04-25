@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-from src.database.postgres import save_forecasts_to_db
+from src.database.supabase_client import save_forecasts_to_supabase
 from src.providers.open_meteo_provider import fetch_daily_tmax_forecast as fetch_open_meteo_forecast
 from src.providers.open_meteo_provider import PROVIDER_NAME as OPEN_METEO_PROVIDER
 from src.providers.weatherapi_provider import fetch_daily_tmax_forecast as fetch_weatherapi_forecast
@@ -153,7 +153,7 @@ def main() -> None:
     settings = load_settings("configs/settings.yaml")
     result_df = collect_forecasts(settings)
     output_path = save_forecast(result_df, settings["paths"]["forecasts_raw"])
-    save_forecasts_to_db(result_df)
+    save_forecasts_to_supabase(result_df)
 
     print(f"Saved forecasts to: {output_path}")
     print(result_df)
