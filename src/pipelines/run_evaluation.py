@@ -7,6 +7,7 @@ from pathlib import Path
 
 import yaml
 
+from src.database.supabase_client import save_evaluation_to_supabase
 from src.evaluation.compare import load_actuals, load_forecasts, match_forecasts_with_actuals
 from src.evaluation.metrics import add_abs_error, mae_by_provider
 
@@ -43,6 +44,7 @@ def main() -> None:
     mae = mae_by_provider(detailed)
 
     detailed_path, mae_path = save_results(detailed, mae, settings["paths"]["evaluation_processed"])
+    save_evaluation_to_supabase(detailed, mae)
 
     print(f"Saved detailed evaluation to: {detailed_path}")
     print(f"Saved MAE summary to: {mae_path}")
