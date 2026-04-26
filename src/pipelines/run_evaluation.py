@@ -5,9 +5,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pandas as pd
 import yaml
 
-from src.database.supabase_client import save_evaluation_to_supabase
+from src.database.supabase_client import (
+    load_actuals_from_supabase,
+    load_forecasts_from_supabase,
+    save_evaluation_to_supabase,
+)
 from src.evaluation.compare import load_actuals, load_forecasts, match_forecasts_with_actuals
 from src.evaluation.metrics import add_abs_error, mae_by_provider
 
@@ -16,6 +21,22 @@ def load_settings(path: str = "configs/settings.yaml") -> dict:
     """Load YAML settings from config file."""
     with Path(path).open("r", encoding="utf-8") as file:
         return yaml.safe_load(file)
+
+
+def load_evaluation_inputs(settings: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load forecast and actual records for evaluation.
+
+    Prefer Supabase history when configured. Fall back to local parquet files.
+    """
+    forecasts = load_forecasts_from_supabase()
+    actuals = load_actuals_from_supabase()
+
+    if forecasts is not None and actuals is not None and not forecasts.empty and not actuals.empty:
+        print("Loaded evaluation inputs from Supabase.")
+        return forecasts, actuals
+
+    print("Falling back to local parquet files for evaluation inputs.")
+    return load_forecasts(settings["paths"]["forecasts_raw"]), load_actuals(settings["paths"]["actuals_raw"])
 
 
 def save_results(detailed_df, mae_df, output_dir: str) -> tuple[Path, Path]:
@@ -36,8 +57,7 @@ def save_results(detailed_df, mae_df, output_dir: str) -> tuple[Path, Path]:
 def main() -> None:
     settings = load_settings("configs/settings.yaml")
 
-    forecasts = load_forecasts(settings["paths"]["forecasts_raw"])
-    actuals = load_actuals(settings["paths"]["actuals_raw"])
+    forecasts, actuals = load_evaluation_inputs(settings)
 
     matched = match_forecasts_with_actuals(forecasts, actuals)
     detailed = add_abs_error(matched)
