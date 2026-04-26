@@ -109,7 +109,12 @@ def fetch_provider_forecast(provider_name: str, provider_cfg: dict, latitude: fl
 
 
 def collect_forecasts(settings: dict) -> pd.DataFrame:
-    """Collect forecasts from enabled providers and return one combined DataFrame."""
+    """Collect forecasts from enabled providers and return one combined DataFrame.
+
+    A single provider failure must not stop the whole pipeline. This is important
+    because commercial APIs can fail due to expired keys, inactive subscriptions,
+    quota limits, or temporary provider-side errors.
+    """
     latitude = float(settings["latitude"])
     longitude = float(settings["longitude"])
     horizon_days = int(settings["forecast_horizon_days"])
@@ -121,15 +126,16 @@ def collect_forecasts(settings: dict) -> pd.DataFrame:
     records: list[pd.DataFrame] = []
 
     for provider_name, provider_cfg in providers_cfg.items():
-        forecast_df = fetch_provider_forecast(provider_name, provider_cfg, latitude, longitude, horizon_days)
-        if forecast_df is None:
-            continue
-
         try:
+            forecast_df = fetch_provider_forecast(provider_name, provider_cfg, latitude, longitude, horizon_days)
+            if forecast_df is None:
+                continue
+
             provider_record = build_provider_record(provider_name, forecast_df, run_date, target_date, horizon_days)
             records.append(provider_record)
-        except ValueError as error:
-            print(f"Skipping {provider_name}: {error}")
+        except Exception as error:
+            print(f"Skipping {provider_name} due to provider error: {error}")
+            continue
 
     if not records:
         raise ValueError("No forecast records collected. Check provider configuration and API keys.")
