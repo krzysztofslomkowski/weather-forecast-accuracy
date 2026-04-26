@@ -72,6 +72,42 @@ def upsert_dataframe(table_name: str, df: pd.DataFrame, conflict_columns: str) -
     print(f"Saved {len(records)} rows to Supabase table: {table_name}.")
 
 
+def load_table_from_supabase(table_name: str) -> pd.DataFrame | None:
+    """Load all rows from a Supabase table into a DataFrame.
+
+    Returns None when Supabase is not configured, so callers can fall back to local files.
+    """
+    client = get_supabase_client()
+    if client is None:
+        print(f"Skipping Supabase read for {table_name} (SUPABASE_URL or SUPABASE_KEY not configured).")
+        return None
+
+    response = client.table(table_name).select("*").execute()
+    rows = response.data or []
+    return pd.DataFrame(rows)
+
+
+def load_forecasts_from_supabase() -> pd.DataFrame | None:
+    """Load historical forecast records from Supabase."""
+    df = load_table_from_supabase("forecast_records")
+    if df is None or df.empty:
+        return df
+
+    df["run_date"] = pd.to_datetime(df["run_date"]).dt.date
+    df["target_date"] = pd.to_datetime(df["target_date"]).dt.date
+    return df[["provider", "run_date", "target_date", "horizon_days", "tmax_c"]]
+
+
+def load_actuals_from_supabase() -> pd.DataFrame | None:
+    """Load historical actual observation records from Supabase."""
+    df = load_table_from_supabase("actual_records")
+    if df is None or df.empty:
+        return df
+
+    df["date"] = pd.to_datetime(df["date"]).dt.date
+    return df[["date", "tmax_c"]]
+
+
 def save_forecasts_to_supabase(df: pd.DataFrame) -> None:
     """Save forecast records to Supabase."""
     upsert_dataframe(
