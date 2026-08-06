@@ -6,6 +6,14 @@ on:
     # GitHub cron uses UTC.
     # 19:15 UTC = 20:15 in Poland/Spain during winter time, 21:15 during summer time.
     - cron: "15 19 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/daily_weather_pipeline.yml"
+      - "configs/**"
+      - "requirements.txt"
+      - "src/**"
 
 permissions:
   contents: write
