@@ -1,4 +1,4 @@
-"""Pipeline: fetch daily actual tmax values for Torrevieja and save to parquet."""
+"""Pipeline: fetch daily actual tmax values for Torrevieja and save to parquet/CSV."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ import yaml
 from meteostat import Daily, Point
 
 from src.database.supabase_client import save_actuals_to_supabase
+from src.storage.csv_store import upsert_csv
 
 HISTORY_DAYS = 30
 
@@ -62,6 +63,18 @@ def save_actuals(df: pd.DataFrame, output_dir: str) -> Path:
     return file_path
 
 
+def save_actuals_history(df: pd.DataFrame, settings: dict) -> pd.DataFrame:
+    """Upsert actual observations into the public cumulative CSV store."""
+    actuals_history_path = settings.get("reports_data", {}).get("actuals", "reports/data/actuals.csv")
+    return upsert_csv(
+        new_rows=df,
+        path=actuals_history_path,
+        keys=["date"],
+        date_columns=["date"],
+        sort_columns=["date"],
+    )
+
+
 def main() -> None:
     settings = load_settings("configs/settings.yaml")
 
@@ -75,9 +88,11 @@ def main() -> None:
     raw_actuals = fetch_actuals(latitude, longitude, start_date, end_date)
     actuals_df = normalize_actuals(raw_actuals)
     output_path = save_actuals(actuals_df, settings["paths"]["actuals_raw"])
+    history_df = save_actuals_history(actuals_df, settings)
     save_actuals_to_supabase(actuals_df)
 
     print(f"Saved actuals to: {output_path}")
+    print(f"Updated public actuals history rows: {len(history_df)}")
     print(actuals_df.tail())
 
 
