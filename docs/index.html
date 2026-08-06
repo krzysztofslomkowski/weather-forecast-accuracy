@@ -3,293 +3,231 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A reproducible benchmark comparing D+3 daily maximum temperature forecasts for Torrevieja, Spain.">
-  <meta name="theme-color" content="#071a2b">
-  <title>Weather Forecast Accuracy — Torrevieja</title>
+  <meta name="description" content="Live dashboard comparing D+3 daily maximum temperature forecast accuracy in Torrevieja, Spain.">
+  <meta name="theme-color" content="#0b1220">
+  <title>Weather Forecast Accuracy Dashboard — Torrevieja</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to content</a>
+  <a class="skip-link" href="#dashboard">Skip to dashboard</a>
 
-  <header class="site-header">
-    <div class="shell nav-wrap">
-      <a class="brand" href="#top" aria-label="Weather Forecast Accuracy home">
-        <span class="brand-mark" aria-hidden="true">WFA</span>
-        <span>Forecast Accuracy Lab</span>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#dashboard" aria-label="Weather Forecast Accuracy dashboard">
+        <span class="brand-icon" aria-hidden="true">°</span>
+        <span>
+          <strong>Forecast Accuracy</strong>
+          <small>Torrevieja · D+3 tmax</small>
+        </span>
       </a>
-      <nav class="site-nav" aria-label="Primary navigation">
-        <a href="#results">Results</a>
-        <a href="#methodology">Methodology</a>
-        <a href="#portfolio">Portfolio</a>
-        <a class="nav-cta" href="https://github.com/krzysztofslomkowski/weather-forecast-accuracy">View repository</a>
-      </nav>
+      <div class="topbar-actions">
+        <span class="live-pill"><i aria-hidden="true"></i> GitHub CSV</span>
+        <a class="repo-link" href="https://github.com/krzysztofslomkowski/weather-forecast-accuracy">Repository ↗</a>
+      </div>
     </div>
   </header>
 
-  <main id="main-content">
-    <section class="hero" id="top">
-      <div class="shell hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Portfolio data engineering case study</p>
-          <h1>Weather Forecast Accuracy — Torrevieja</h1>
-          <p class="hero-lede">
-            Which weather forecast provider is most accurate for daily maximum temperature in Torrevieja at D+3?
-          </p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#results">Explore benchmark</a>
-            <a class="button button-secondary" href="#methodology">Review methodology</a>
-          </div>
-        </div>
-
-        <aside class="benchmark-card" aria-label="Benchmark definition">
-          <p class="benchmark-label">Benchmark definition</p>
-          <dl class="benchmark-list">
-            <div>
-              <dt>Location</dt>
-              <dd>Torrevieja, Spain</dd>
-            </div>
-            <div>
-              <dt>Forecast target</dt>
-              <dd>Daily maximum temperature</dd>
-            </div>
-            <div>
-              <dt>Forecast horizon</dt>
-              <dd>D+3</dd>
-            </div>
-            <div>
-              <dt>Primary metric</dt>
-              <dd>MAE in °C</dd>
-            </div>
-          </dl>
-          <p class="benchmark-note">Lower MAE indicates higher forecast accuracy.</p>
-        </aside>
+  <main id="dashboard" class="dashboard-shell">
+    <section class="dashboard-titlebar" aria-labelledby="dashboard-title">
+      <div>
+        <p class="overline">Weather provider benchmark</p>
+        <h1 id="dashboard-title">D+3 maximum temperature accuracy</h1>
+        <p class="subtitle">Which provider is most accurate for daily <code>tmax_c</code> in Torrevieja?</p>
+      </div>
+      <div class="benchmark-meta" aria-label="Benchmark definition">
+        <span>37.9780, −0.6822</span>
+        <span>Meteostat actuals</span>
+        <span>MAE · lower is better</span>
       </div>
     </section>
 
-    <section class="section section-results" id="results">
-      <div class="shell">
-        <div class="section-heading heading-row">
+    <div id="data-status" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <section class="summary-grid" aria-label="Benchmark summary">
+      <article class="leader-card">
+        <div class="leader-header">
           <div>
-            <p class="eyebrow">Current benchmark</p>
-            <h2>Evaluation results</h2>
-            <p>All values below are calculated in the browser from versioned CSV files in this repository.</p>
+            <p class="card-label">Current leader</p>
+            <p id="benchmark-state" class="state-badge">Loading data</p>
           </div>
-          <div class="data-source-badge" title="The dashboard reads local CSV files from docs/data">
-            <span class="status-dot" aria-hidden="true"></span>
-            GitHub-versioned CSV data
-          </div>
+          <span class="leader-symbol" aria-hidden="true">01</span>
         </div>
-
-        <div id="data-status" class="status-panel" role="status" aria-live="polite" hidden></div>
-
-        <div class="kpi-grid" aria-label="Benchmark summary">
-          <article class="kpi-card kpi-featured">
-            <p class="kpi-label">Best provider</p>
-            <p class="kpi-value" id="kpi-best-provider">—</p>
-            <p class="kpi-meta">Lowest observed MAE</p>
-          </article>
-          <article class="kpi-card">
-            <p class="kpi-label">Best MAE</p>
-            <p class="kpi-value" id="kpi-best-mae">—</p>
-            <p class="kpi-meta">Mean absolute error</p>
-          </article>
-          <article class="kpi-card">
-            <p class="kpi-label">Providers</p>
-            <p class="kpi-value" id="kpi-providers">0</p>
-            <p class="kpi-meta">Present in public CSV data</p>
-          </article>
-          <article class="kpi-card">
-            <p class="kpi-label">Completed comparisons</p>
-            <p class="kpi-value" id="kpi-comparisons">0</p>
-            <p class="kpi-meta">Matched forecast–actual rows</p>
-          </article>
-          <article class="kpi-card">
-            <p class="kpi-label">Target-date range</p>
-            <p class="kpi-value kpi-value-compact" id="kpi-date-range">—</p>
-            <p class="kpi-meta">Completed comparisons only</p>
-          </article>
-          <article class="kpi-card">
-            <p class="kpi-label">Latest data date</p>
-            <p class="kpi-value kpi-value-compact" id="kpi-last-updated">—</p>
-            <p class="kpi-meta">Latest dated record in CSV data</p>
-          </article>
-        </div>
-
-        <article class="panel ranking-panel">
-          <div class="panel-header">
-            <div>
-              <p class="panel-kicker">Provider ranking</p>
-              <h3>Accuracy at D+3</h3>
-            </div>
-            <p class="panel-note">Bias is forecast minus actual; positive values indicate forecasts that run warm.</p>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Rank</th>
-                  <th scope="col">Provider</th>
-                  <th scope="col" class="numeric">Observations</th>
-                  <th scope="col" class="numeric">MAE</th>
-                  <th scope="col" class="numeric">Bias</th>
-                </tr>
-              </thead>
-              <tbody id="ranking-body"></tbody>
-            </table>
-          </div>
-          <div id="ranking-empty" class="empty-state" hidden>
-            <span class="empty-icon" aria-hidden="true">↻</span>
-            <strong>No completed comparisons yet.</strong>
-            <p>The dashboard will update automatically once D+3 forecasts have matching actual observations.</p>
-          </div>
-        </article>
-
-        <div class="charts-grid">
-          <article class="panel chart-panel">
-            <div class="panel-header">
-              <div>
-                <p class="panel-kicker">Primary metric</p>
-                <h3>MAE by provider</h3>
-              </div>
-              <p class="panel-note">Lower is better</p>
-            </div>
-            <svg id="mae-chart" class="chart" viewBox="0 0 820 360" role="img" aria-label="Bar chart of MAE by provider"></svg>
-          </article>
-
-          <article class="panel chart-panel chart-panel-wide">
-            <div class="panel-header">
-              <div>
-                <p class="panel-kicker">Error trend</p>
-                <h3>Absolute error over time</h3>
-              </div>
-              <p class="panel-note">One series per provider</p>
-            </div>
-            <svg id="error-chart" class="chart chart-large" viewBox="0 0 1080 420" role="img" aria-label="Line chart of absolute error over time by provider"></svg>
-          </article>
-
-          <article class="panel chart-panel">
-            <div class="panel-header">
-              <div>
-                <p class="panel-kicker">Daily leaders</p>
-                <h3>Daily wins by provider</h3>
-              </div>
-              <p class="panel-note">Ties count for each provider</p>
-            </div>
-            <svg id="wins-chart" class="chart" viewBox="0 0 820 360" role="img" aria-label="Bar chart of daily wins by provider"></svg>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-soft" id="methodology">
-      <div class="shell">
-        <div class="section-heading">
-          <p class="eyebrow">Reproducible evaluation</p>
-          <h2>Methodology</h2>
-          <p>The benchmark applies the same target, horizon and scoring rule to every provider.</p>
-        </div>
-
-        <div class="method-grid">
-          <article class="method-card">
-            <span class="method-step">01</span>
-            <h3>Forecast target</h3>
-            <p>Daily maximum temperature stored as <code>tmax_c</code> for Torrevieja at latitude 37.9780 and longitude −0.6822.</p>
-          </article>
-          <article class="method-card">
-            <span class="method-step">02</span>
-            <h3>Fixed horizon</h3>
-            <p>Only D+3 forecasts are compared, using <code>forecast_horizon_days: 3</code> across providers.</p>
-          </article>
-          <article class="method-card">
-            <span class="method-step">03</span>
-            <h3>Observed actuals</h3>
-            <p>Observed daily maximum temperatures are sourced from Meteostat and stored in the public CSV layer.</p>
-          </article>
-          <article class="method-card">
-            <span class="method-step">04</span>
-            <h3>Date matching</h3>
-            <p>A forecast is evaluated only when <code>forecast.target_date == actual.date</code>.</p>
-          </article>
-          <article class="method-card">
-            <span class="method-step">05</span>
-            <h3>Scoring</h3>
-            <p>Absolute error is calculated for each matched row; provider MAE is the mean of those errors in °C.</p>
-          </article>
-        </div>
-
-        <div class="formula-card" aria-label="MAE formula">
+        <div class="leader-result">
+          <p id="kpi-best-provider" class="leader-name">—</p>
           <div>
-            <p class="panel-kicker">Primary metric</p>
-            <h3>Mean Absolute Error</h3>
+            <span id="kpi-best-mae" class="leader-mae">—</span>
+            <small>mean absolute error</small>
           </div>
-          <p class="formula">MAE = (1 / n) × Σ |forecast<sub>i</sub> − actual<sub>i</sub>|</p>
-          <p>MAE is directly interpretable in degrees Celsius. A smaller value means that forecasts were closer to observations on average.</p>
         </div>
-      </div>
+        <p id="leader-context" class="leader-context">Reading versioned evaluation files…</p>
+      </article>
+
+      <article class="metric-card">
+        <p class="card-label">Completed comparisons</p>
+        <p id="kpi-comparisons" class="metric-value">0</p>
+        <p class="metric-note">matched forecast–actual rows</p>
+      </article>
+      <article class="metric-card">
+        <p class="card-label">Providers tracked</p>
+        <p id="kpi-providers" class="metric-value">0</p>
+        <p class="metric-note">present in public datasets</p>
+      </article>
+      <article class="metric-card">
+        <p class="card-label">Evaluated period</p>
+        <p id="kpi-date-range" class="metric-value metric-date">—</p>
+        <p class="metric-note">target dates with actuals</p>
+      </article>
+      <article class="metric-card">
+        <p class="card-label">Latest data date</p>
+        <p id="kpi-last-updated" class="metric-value metric-date">—</p>
+        <p class="metric-note">latest record in CSV layer</p>
+      </article>
     </section>
 
-    <section class="section" id="limitations">
-      <div class="shell split-section">
-        <div class="section-heading sticky-heading">
-          <p class="eyebrow">Responsible interpretation</p>
-          <h2>Limitations</h2>
-          <p>The ranking is an empirical local benchmark, not a universal league table of weather providers.</p>
+    <section class="dashboard-grid" aria-label="Accuracy results">
+      <article class="panel panel-mae">
+        <div class="panel-heading">
+          <div>
+            <p class="card-label">Primary result</p>
+            <h2>MAE by provider</h2>
+          </div>
+          <span class="unit-chip">°C</span>
         </div>
-        <div class="limitations-list">
-          <article>
-            <h3>One-city benchmark</h3>
-            <p>Results apply to Torrevieja and may not generalize to inland, mountainous or different climate zones.</p>
-          </article>
-          <article>
-            <h3>One forecast horizon</h3>
-            <p>The project evaluates D+3 only. Provider performance may differ at D+1, D+5 or longer horizons.</p>
-          </article>
-          <article>
-            <h3>Growing sample</h3>
-            <p>Early rankings can move materially as more matched forecast–actual observations accumulate.</p>
-          </article>
-          <article>
-            <h3>API plan constraints</h3>
-            <p>Providers can expose different forecast products, update schedules and usage limits depending on their API plans.</p>
-          </article>
-          <article>
-            <h3>Scope of the conclusion</h3>
-            <p>The result answers one precise question about daily maximum temperature, one location, one horizon and the available sample.</p>
-          </article>
+        <svg id="mae-chart" class="chart" viewBox="0 0 900 410" role="img" aria-label="Mean absolute error by provider"></svg>
+      </article>
+
+      <article class="panel panel-readiness">
+        <div class="panel-heading">
+          <div>
+            <p class="card-label">Dataset readiness</p>
+            <h2 id="readiness-title">Collection status</h2>
+          </div>
+          <span id="readiness-status" class="status-chip">Loading</span>
         </div>
-      </div>
+
+        <div class="readiness-progress" aria-label="Provider evaluation coverage">
+          <div class="progress-copy">
+            <span>Providers with completed evaluation</span>
+            <strong id="readiness-ratio">0 / 0</strong>
+          </div>
+          <div class="progress-track"><span id="readiness-bar"></span></div>
+        </div>
+
+        <dl class="readiness-stats">
+          <div><dt>Forecast rows</dt><dd id="stat-forecast-rows">0</dd></div>
+          <div><dt>Actual days</dt><dd id="stat-actual-days">0</dd></div>
+          <div><dt>Pending D+3 rows</dt><dd id="stat-pending-rows">0</dd></div>
+          <div><dt>Next target date</dt><dd id="stat-next-target">—</dd></div>
+        </dl>
+
+        <div id="readiness-message" class="readiness-message">
+          Waiting for matching Meteostat observations.
+        </div>
+      </article>
+
+      <article class="panel panel-ranking">
+        <div class="panel-heading">
+          <div>
+            <p class="card-label">League table</p>
+            <h2>Provider ranking</h2>
+          </div>
+          <p class="panel-help">Bias = forecast − actual</p>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Provider</th>
+                <th class="num">Observations</th>
+                <th class="num">MAE</th>
+                <th class="num">Bias</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+          </table>
+        </div>
+        <div id="ranking-empty" class="empty-result" hidden>
+          <strong>No completed D+3 comparisons yet</strong>
+          <p>Ranking will appear automatically when forecast target dates have matching Meteostat observations.</p>
+        </div>
+      </article>
+
+      <article class="panel panel-wins">
+        <div class="panel-heading">
+          <div>
+            <p class="card-label">Head-to-head</p>
+            <h2>Daily wins</h2>
+          </div>
+          <span class="muted-chip">ties included</span>
+        </div>
+        <svg id="wins-chart" class="chart compact-chart" viewBox="0 0 560 360" role="img" aria-label="Daily wins by provider"></svg>
+      </article>
+
+      <article class="panel panel-trend">
+        <div class="panel-heading">
+          <div>
+            <p class="card-label">Error history</p>
+            <h2>Absolute error over time</h2>
+          </div>
+          <p class="panel-help">Daily mean when duplicate provider/date rows occur</p>
+        </div>
+        <svg id="error-chart" class="chart trend-chart" viewBox="0 0 1180 430" role="img" aria-label="Absolute forecast error over time"></svg>
+      </article>
+
+      <article class="panel panel-coverage">
+        <div class="panel-heading">
+          <div>
+            <p class="card-label">Pipeline output</p>
+            <h2>Provider data coverage</h2>
+          </div>
+          <p class="panel-help">Live status derived from forecasts and evaluations</p>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th class="num">Forecast rows</th>
+                <th>Latest run</th>
+                <th>Latest target</th>
+                <th class="num">Completed</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="coverage-body"></tbody>
+          </table>
+        </div>
+      </article>
     </section>
 
-    <section class="section section-portfolio" id="portfolio">
-      <div class="shell portfolio-grid">
-        <div>
-          <p class="eyebrow">Engineering portfolio</p>
-          <h2>What this project demonstrates</h2>
-          <p class="portfolio-lede">A compact end-to-end analytics system that moves from external APIs to a reproducible, decision-oriented public dashboard.</p>
-        </div>
-        <div class="capability-grid">
-          <article><span>API</span><h3>Multi-provider ingestion</h3><p>Config-driven connectors normalize forecast data into a consistent contract.</p></article>
-          <article><span>ETL</span><h3>Data pipeline</h3><p>Forecasts, observations and evaluations are persisted as versioned datasets.</p></article>
-          <article><span>CI</span><h3>Scheduled automation</h3><p>GitHub Actions runs ingestion and evaluation without a continuously hosted backend.</p></article>
-          <article><span>QA</span><h3>Reproducible evaluation</h3><p>Explicit matching and metric definitions keep comparisons auditable.</p></article>
-          <article><span>KPI</span><h3>Metric-driven decisions</h3><p>MAE, bias and daily wins translate raw forecasts into provider-level evidence.</p></article>
-          <article><span>WEB</span><h3>Static data dashboard</h3><p>A dependency-light frontend reads repository CSV files with no secrets or database requirement.</p></article>
-        </div>
-      </div>
+    <section class="context-grid" aria-label="Methodology and interpretation">
+      <article class="context-card">
+        <p class="card-label">Methodology</p>
+        <h2>How the score is calculated</h2>
+        <ol>
+          <li>Collect each provider's D+3 <code>tmax_c</code> forecast.</li>
+          <li>Match <code>forecast.target_date</code> to <code>actual.date</code>.</li>
+          <li>Calculate absolute error and aggregate provider MAE.</li>
+        </ol>
+      </article>
+      <article class="context-card">
+        <p class="card-label">Interpretation</p>
+        <h2>What the result means</h2>
+        <p>Lower MAE means better average accuracy for this location, variable, horizon and observed sample.</p>
+        <p class="fine-print">This is not a universal ranking of weather providers.</p>
+      </article>
+      <article class="context-card">
+        <p class="card-label">Data architecture</p>
+        <h2>Static and reproducible</h2>
+        <p>GitHub Actions updates versioned CSV files. This dashboard reads those files directly, without Supabase or frontend secrets.</p>
+      </article>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="shell footer-wrap">
-      <div>
-        <strong>Weather Forecast Accuracy — Torrevieja</strong>
-        <p>Static dashboard generated from public, versioned CSV data.</p>
-      </div>
-      <div class="footer-links">
-        <a href="https://github.com/krzysztofslomkowski/weather-forecast-accuracy">GitHub repository</a>
-        <a href="#top">Back to top</a>
-      </div>
-    </div>
+  <footer class="footer">
+    <span>Weather Forecast Accuracy · Torrevieja</span>
+    <span>Open data dashboard powered by repository CSV files</span>
   </footer>
 
   <script src="app.js" defer></script>
