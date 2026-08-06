@@ -1,4 +1,9 @@
-"""Supabase persistence helpers."""
+"""Supabase persistence helpers.
+
+Supabase is optional for this project. The public source of truth is the
+versioned CSV data in ``reports/data``. These helpers therefore never fail the
+pipeline when Supabase is unavailable, inactive, or not configured.
+"""
 
 from __future__ import annotations
 
@@ -34,7 +39,11 @@ def get_supabase_client():
     if not url or not key:
         return None
 
-    return create_client(url, key)
+    try:
+        return create_client(url, key)
+    except Exception as error:
+        print(f"Skipping Supabase client creation due to error: {error}")
+        return None
 
 
 def normalize_value(value: Any) -> Any:
@@ -57,7 +66,7 @@ def dataframe_to_records(df: pd.DataFrame) -> list[dict[str, Any]]:
 
 
 def upsert_dataframe(table_name: str, df: pd.DataFrame, conflict_columns: str) -> None:
-    """Upsert a DataFrame into a Supabase table."""
+    """Upsert a DataFrame into a Supabase table when Supabase is available."""
     client = get_supabase_client()
     if client is None:
         print(f"Skipping Supabase save for {table_name} (SUPABASE_URL or SUPABASE_KEY not configured).")
@@ -68,23 +77,31 @@ def upsert_dataframe(table_name: str, df: pd.DataFrame, conflict_columns: str) -
         return
 
     records = dataframe_to_records(df)
-    client.table(table_name).upsert(records, on_conflict=conflict_columns).execute()
-    print(f"Saved {len(records)} rows to Supabase table: {table_name}.")
+    try:
+        client.table(table_name).upsert(records, on_conflict=conflict_columns).execute()
+        print(f"Saved {len(records)} rows to Supabase table: {table_name}.")
+    except Exception as error:
+        print(f"Skipping Supabase save for {table_name} due to error: {error}")
 
 
 def load_table_from_supabase(table_name: str) -> pd.DataFrame | None:
-    """Load all rows from a Supabase table into a DataFrame.
+    """Load all rows from a Supabase table into a DataFrame when available.
 
-    Returns None when Supabase is not configured, so callers can fall back to local files.
+    Returns None when Supabase is unavailable, inactive, or not configured, so
+    callers can fall back to versioned CSV files or local parquet files.
     """
     client = get_supabase_client()
     if client is None:
         print(f"Skipping Supabase read for {table_name} (SUPABASE_URL or SUPABASE_KEY not configured).")
         return None
 
-    response = client.table(table_name).select("*").execute()
-    rows = response.data or []
-    return pd.DataFrame(rows)
+    try:
+        response = client.table(table_name).select("*").execute()
+        rows = response.data or []
+        return pd.DataFrame(rows)
+    except Exception as error:
+        print(f"Skipping Supabase read for {table_name} due to error: {error}")
+        return None
 
 
 def load_forecasts_from_supabase() -> pd.DataFrame | None:
