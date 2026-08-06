@@ -7,6 +7,9 @@ on:
     # 19:15 UTC = 20:15 in Poland/Spain during winter time, 21:15 during summer time.
     - cron: "15 19 * * *"
 
+permissions:
+  contents: write
+
 jobs:
   run-weather-pipeline:
     runs-on: ubuntu-latest
@@ -16,12 +19,12 @@ jobs:
       OPENWEATHERMAP_KEY: ${{ secrets.OPENWEATHERMAP_KEY }}
       VISUALCROSSING_KEY: ${{ secrets.VISUALCROSSING_KEY }}
       TOMORROW_KEY: ${{ secrets.TOMORROW_KEY }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -37,8 +40,20 @@ jobs:
       - name: Ingest actual observations
         run: python -m src.pipelines.ingest_actuals
 
-      - name: Run evaluation
+      - name: Run evaluation and update report
         run: python -m src.pipelines.run_evaluation
+
+      - name: Commit generated report data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/data/*.csv reports/evaluation_summary.md || true
+          if git diff --cached --quiet; then
+            echo "No report data changes to commit."
+          else
+            git commit -m "Update weather evaluation data"
+            git push
+          fi
 
       - name: Upload generated data artifacts
         uses: actions/upload-artifact@v4
@@ -48,3 +63,5 @@ jobs:
             data/raw/forecasts/*.parquet
             data/raw/actuals/*.parquet
             data/processed/evaluation/*.parquet
+            reports/data/*.csv
+            reports/evaluation_summary.md
