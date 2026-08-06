@@ -3,6 +3,7 @@ country: Spain
 latitude: 37.9780
 longitude: -0.6822
 forecast_horizon_days: 3
+pipeline_mode: github_csv
 
 paths:
   forecasts_raw: data/raw/forecasts
