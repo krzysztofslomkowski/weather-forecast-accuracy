@@ -10,6 +10,13 @@ paths:
   evaluation_processed: data/processed/evaluation
   reports_figures: reports/figures
 
+reports_data:
+  forecasts: reports/data/forecasts.csv
+  actuals: reports/data/actuals.csv
+  evaluation_detailed: reports/data/evaluation_detailed.csv
+  evaluation_mae: reports/data/evaluation_mae.csv
+  summary: reports/evaluation_summary.md
+
 forecast_providers:
   open-meteo:
     enabled: true
