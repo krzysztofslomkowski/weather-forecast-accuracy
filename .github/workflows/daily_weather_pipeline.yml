@@ -14,6 +14,10 @@ on:
       - "configs/**"
       - "requirements.txt"
       - "src/**"
+      - "docs/index.html"
+      - "docs/styles.css"
+      - "docs/app.js"
+      - "docs/.nojekyll"
 
 permissions:
   contents: write
@@ -51,13 +55,21 @@ jobs:
       - name: Run evaluation and update report
         run: python -m src.pipelines.run_evaluation
 
-      - name: Commit generated report data
+      - name: Sync public CSV data to GitHub Pages
+        run: |
+          mkdir -p docs/data
+          cp reports/data/forecasts.csv docs/data/forecasts.csv
+          cp reports/data/actuals.csv docs/data/actuals.csv
+          cp reports/data/evaluation_detailed.csv docs/data/evaluation_detailed.csv
+          cp reports/data/evaluation_mae.csv docs/data/evaluation_mae.csv
+
+      - name: Commit generated report and dashboard data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/data/*.csv reports/evaluation_summary.md || true
+          git add reports/data/*.csv reports/evaluation_summary.md docs/data/*.csv
           if git diff --cached --quiet; then
-            echo "No report data changes to commit."
+            echo "No report or dashboard data changes to commit."
           else
             git commit -m "Update weather evaluation data"
             git push
@@ -73,3 +85,4 @@ jobs:
             data/processed/evaluation/*.parquet
             reports/data/*.csv
             reports/evaluation_summary.md
+            docs/data/*.csv
