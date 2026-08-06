@@ -1,4 +1,4 @@
-"""Pipeline: fetch D+3 forecasts for Torrevieja and save to parquet."""
+"""Pipeline: fetch D+3 forecasts for Torrevieja and save to parquet/CSV."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from src.providers.visualcrossing_provider import fetch_daily_tmax_forecast as f
 from src.providers.visualcrossing_provider import PROVIDER_NAME as VISUALCROSSING_PROVIDER
 from src.providers.tomorrow_provider import fetch_daily_tmax_forecast as fetch_tomorrow_forecast
 from src.providers.tomorrow_provider import PROVIDER_NAME as TOMORROW_PROVIDER
+from src.storage.csv_store import upsert_csv
 
 
 def load_local_env(path: str = ".env") -> None:
@@ -154,14 +155,28 @@ def save_forecast(df: pd.DataFrame, output_dir: str) -> Path:
     return file_path
 
 
+def save_forecast_history(df: pd.DataFrame, settings: dict) -> pd.DataFrame:
+    """Upsert forecast rows into the public cumulative CSV store."""
+    forecast_history_path = settings.get("reports_data", {}).get("forecasts", "reports/data/forecasts.csv")
+    return upsert_csv(
+        new_rows=df,
+        path=forecast_history_path,
+        keys=["provider", "run_date", "target_date", "horizon_days"],
+        date_columns=["run_date", "target_date"],
+        sort_columns=["run_date", "target_date", "provider"],
+    )
+
+
 def main() -> None:
     load_local_env()
     settings = load_settings("configs/settings.yaml")
     result_df = collect_forecasts(settings)
     output_path = save_forecast(result_df, settings["paths"]["forecasts_raw"])
+    history_df = save_forecast_history(result_df, settings)
     save_forecasts_to_supabase(result_df)
 
     print(f"Saved forecasts to: {output_path}")
+    print(f"Updated public forecast history rows: {len(history_df)}")
     print(result_df)
 
 
