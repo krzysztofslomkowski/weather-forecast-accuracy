@@ -7,18 +7,9 @@ on:
     # collecting a second set of provider forecasts.
     # 06:30 UTC = 08:30 in Spain during summer time, 07:30 during winter time.
     - cron: "30 6 * * *"
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/actuals_evaluation_refresh.yml"
 
 permissions:
   contents: write
-
-concurrency:
-  group: weather-data-writer
-  cancel-in-progress: false
 
 jobs:
   refresh-actuals-and-evaluation:
