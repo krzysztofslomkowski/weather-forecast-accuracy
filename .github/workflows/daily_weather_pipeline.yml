@@ -22,10 +22,6 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: weather-data-writer
-  cancel-in-progress: false
-
 jobs:
   run-weather-pipeline:
     runs-on: ubuntu-latest
