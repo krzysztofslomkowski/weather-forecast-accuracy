@@ -1,0 +1,76 @@
+name: Actuals and Evaluation Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Refresh yesterday's Meteostat actuals early each morning without
+    # collecting a second set of provider forecasts.
+    # 06:30 UTC = 08:30 in Spain during summer time, 07:30 during winter time.
+    - cron: "30 6 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/actuals_evaluation_refresh.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weather-data-writer
+  cancel-in-progress: false
+
+jobs:
+  refresh-actuals-and-evaluation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest actual observations
+        run: python -m src.pipelines.ingest_actuals
+
+      - name: Run evaluation and update report
+        run: python -m src.pipelines.run_evaluation
+
+      - name: Sync public CSV data to GitHub Pages
+        run: |
+          mkdir -p docs/data
+          cp reports/data/forecasts.csv docs/data/forecasts.csv
+          cp reports/data/actuals.csv docs/data/actuals.csv
+          cp reports/data/evaluation_detailed.csv docs/data/evaluation_detailed.csv
+          cp reports/data/evaluation_mae.csv docs/data/evaluation_mae.csv
+
+      - name: Commit refreshed actuals and evaluation data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/data/actuals.csv reports/data/evaluation_detailed.csv reports/data/evaluation_mae.csv reports/evaluation_summary.md docs/data/*.csv
+          if git diff --cached --quiet; then
+            echo "No actuals or evaluation changes to commit."
+          else
+            git commit -m "Refresh weather actuals and evaluation"
+            git push
+          fi
+
+      - name: Upload refreshed data artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-evaluation-refresh-output
+          path: |
+            data/raw/actuals/*.parquet
+            data/processed/evaluation/*.parquet
+            reports/data/*.csv
+            reports/evaluation_summary.md
+            docs/data/*.csv
