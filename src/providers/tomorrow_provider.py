@@ -20,6 +20,10 @@ def fetch_daily_tmax_forecast(
 ) -> pd.DataFrame:
     """Fetch daily max temperature forecast from Tomorrow.io Timelines API.
 
+    Tomorrow.io's Timelines endpoint is a POST endpoint. Daily aggregation starts
+    at local midnight so target dates align with the calendar-day definition used
+    by the other providers and Meteostat actuals.
+
     Returns a DataFrame with columns:
     - target_date
     - tmax_c
@@ -27,15 +31,26 @@ def fetch_daily_tmax_forecast(
     if not api_key:
         raise ValueError("Tomorrow.io API key is required.")
 
-    params = {
-        "location": f"{latitude},{longitude}",
-        "fields": "temperatureMax",
-        "timesteps": "1d",
+    params = {"apikey": api_key}
+    request_body = {
+        "location": [latitude, longitude],
+        "fields": ["temperatureMax"],
+        "timesteps": ["1d"],
         "units": "metric",
-        "apikey": api_key,
+        "startTime": "now",
+        "endTime": f"nowPlus{forecast_days}d",
+        "timezone": "auto",
+        "dailyStartHour": 0,
     }
+    headers = {"Accept-Encoding": "gzip, deflate"}
 
-    response = requests.get(TOMORROW_URL, params=params, timeout=30)
+    response = requests.post(
+        TOMORROW_URL,
+        params=params,
+        json=request_body,
+        headers=headers,
+        timeout=30,
+    )
     response.raise_for_status()
     payload = response.json()
 
