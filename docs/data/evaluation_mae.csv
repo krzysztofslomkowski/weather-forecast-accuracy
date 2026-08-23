@@ -1,4 +1,4 @@
 rank,provider,observations_count,mae_c
-1,open-meteo,13,0.7307692307692318
+1,open-meteo,14,0.757142857142858
 2,weatherapi,1,1.8999999999999986
-3,openweathermap,13,2.406153846153846
+3,openweathermap,14,2.3007142857142853
