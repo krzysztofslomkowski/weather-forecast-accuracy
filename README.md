@@ -7,6 +7,18 @@
 - Automation: run the pipeline on a schedule with GitHub Actions.
 - Public outputs: versioned CSV datasets, a Markdown evaluation report, and a static dashboard served by GitHub Pages.
 
+## My role and AI assistance
+
+This is a portfolio project developed with substantial assistance from **ChatGPT/Codex**.
+
+My contribution is mainly:
+- defining the analytical question and practical use case,
+- choosing what should be compared and how results should be interpreted,
+- reviewing outputs, edge cases and whether the pipeline/dashboard behaviour makes business sense,
+- iterating on requirements and acceptance criteria.
+
+The repository contains real Python, workflow and frontend code, but I do **not** present that code as evidence that I independently wrote the implementation from scratch. SQL, Python and BI tooling remain learning areas for me; this project is evidence of requirements thinking, analytical reasoning, validation and AI-assisted delivery.
+
 ## Live dashboard
 
 The static dashboard is designed to be published at:
