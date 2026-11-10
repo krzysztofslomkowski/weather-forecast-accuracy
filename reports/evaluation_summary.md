@@ -1,6 +1,6 @@
 # Weather Forecast Accuracy — Torrevieja, Spain
 
-Generated automatically: **2026-11-10 15:06 UTC**.
+Generated automatically: **2026-11-10 23:59 UTC**.
 
 ## Business question
 
