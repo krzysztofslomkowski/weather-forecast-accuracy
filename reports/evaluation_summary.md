@@ -1,6 +1,6 @@
 # Weather Forecast Accuracy — Torrevieja, Spain
 
-Generated automatically: **2026-11-11 14:37 UTC**.
+Generated automatically: **2026-11-12 01:29 UTC**.
 
 ## Business question
 
@@ -14,28 +14,28 @@ Lower MAE means a more accurate provider for this location and horizon.
 
 ## Current result
 
-Best provider so far: **open-meteo** with MAE **0.95°C**.
+Best provider so far: **open-meteo** with MAE **0.96°C**.
 
 | Metric | Value |
 | --- | --- |
 | Providers compared | 3 |
-| Completed comparisons | 212 |
-| Target-date range | 2026-08-09 → 2026-11-10 |
+| Completed comparisons | 214 |
+| Target-date range | 2026-08-09 → 2026-11-11 |
 
 ## Provider ranking
 
 | rank | provider | observations_count | mae_c | bias_c |
 | --- | --- | --- | --- | --- |
-| 1 | open-meteo | 87 | 0.95 | -0.41 |
+| 1 | open-meteo | 88 | 0.96 | -0.39 |
 | 2 | weatherapi | 37 | 1.07 | -0.83 |
-| 3 | openweathermap | 88 | 1.50 | -1.39 |
+| 3 | openweathermap | 89 | 1.48 | -1.38 |
 
 ## Daily wins
 
 | provider | daily_wins |
 | --- | --- |
 | open-meteo | 53 |
-| openweathermap | 26 |
+| openweathermap | 27 |
 | weatherapi | 9 |
 
 ## Public data files
